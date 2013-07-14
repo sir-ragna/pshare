@@ -67,9 +67,13 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         words = path.split('/') # break apart
         words = filter(None, words) # remove false values(or here empty ones)
         path = self.path
+        
+        # make sure the favicon.ico is found in the right folder
         if path == '/favicon.ico':
-            path = os.getcwd() + "\favicon.ico"
+            path = os.getcwd() + "\\favicon.ico"
             return path
+            
+        
         print("Dir is : " + self.DIR + "\n" + "the path is : " + self.path)
         # for w in words:
             # print("w = " + w)
