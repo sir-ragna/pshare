@@ -26,14 +26,12 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         """Produce directory listing
         """
         try:
-            print("list_dir::path is : " + path)
             lst = os.listdir(path)
         except os.error:
             self.send_error(404, "Permission denied")
             return None
         
         f = StringIO.StringIO()
-        #displaypath = cgi.escape(urllib.unquote(self.path))
         f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
         f.write("<html>\n<title>%s</title>\n" % self.TITLE)
         f.write("<hr>\n<ul>\n")
@@ -68,12 +66,11 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         
         # make sure the favicon.ico is found in the right folder
         if dir == '/favicon.ico':
-            urlpath = os.getcwd() + "\\favicon.ico"
-            return urlpath
-            
+            urlpath = os.getcwd() + "\\favicon.ico" # make this crossplatform join
+            return urlpath            
         
-        path = posixpath.normpath(self.DIR) + path
-        sys.stderr.write("File REQUESTED -- " + path + "\n")
+        path = posixpath.normpath(self.DIR) + path # see previous comment
+        sys.stderr.write("REQUESTED -- " + path + "\n")
         return path
         
     
@@ -84,8 +81,6 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         """
         
         path = self.translate_path(self.path)
-        print("self.path:" + self.path)
-        print("self.DIR:" + self.DIR)
         f = None
         if os.path.isdir(path):
             if not self.path.endswith('/'):
