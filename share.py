@@ -19,20 +19,21 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
     HTML = "index.pp"
     CSS = "style.css"
     TITLE = "PSHARE home"
-    DIR = "C:/Users/robbe/Desktop/Voor_INE"
+    DIR = "C:/Users/robbe/Desktop"
 
     
     def list_directory(self, path):
         """Produce directory listing
         """
         try:
-            lst = os.listdir(self.DIR)
+            print("list_dir::path is : " + path)
+            lst = os.listdir(path)
         except os.error:
             self.send_error(404, "Permission denied")
             return None
         
         f = StringIO.StringIO()
-        displaypath = cgi.escape(urllib.unquote(self.path))
+        #displaypath = cgi.escape(urllib.unquote(self.path))
         f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
         f.write("<html>\n<title>%s</title>\n" % self.TITLE)
         f.write("<hr>\n<ul>\n")
@@ -58,31 +59,21 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.end_headers()
         return f
         
-    def translate_path(self, path):
+    def translate_path(self, dir):
         """Translate the url /path/ to the OS filesystem path.
         """
-        # ged rid of query parameters
-        path = path.split('?', 1)[0].split('#', 1)[0]
-        path = posixpath.normpath(urllib.unquote(path))
-        words = path.split('/') # break apart
-        words = filter(None, words) # remove false values(or here empty ones)
-        path = self.path
+       
+        path = dir.split('?', 1)[0].split('#', 1)[0] # remove url params
+        path = posixpath.normpath(urllib.unquote(path)) # unquote thingie
         
         # make sure the favicon.ico is found in the right folder
-        if path == '/favicon.ico':
-            path = os.getcwd() + "\\favicon.ico"
-            return path
+        if dir == '/favicon.ico':
+            urlpath = os.getcwd() + "\\favicon.ico"
+            return urlpath
             
         
-        print("Dir is : " + self.DIR + "\n" + "the path is : " + self.path)
-        # for w in words:
-            # print("w = " + w)
-            # drive, w = os.path.splitdrive(w)
-            # head, w = os.path.split(w)
-            # if w in (os.curdir, os.pardir): continue
-            # path = os.path.join(path, w)
-        return self.DIR + path
-        print("Returning path is : " + path)
+        path = posixpath.normpath(self.DIR) + path
+        sys.stderr.write("File REQUESTED -- " + path + "\n")
         return path
         
     
@@ -92,8 +83,9 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         Returns a file object or None
         """
         
-        path = self.translate_path(self.DIR)
-        print(path)
+        path = self.translate_path(self.path)
+        print("self.path:" + self.path)
+        print("self.DIR:" + self.DIR)
         f = None
         if os.path.isdir(path):
             if not self.path.endswith('/'):
