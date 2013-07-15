@@ -38,7 +38,7 @@ class Settings():
                 sys.stderr.write("ERR -- Settings file could not be READ -- "
                                  + settingsfile + "\n")
 
-    def __getitem__(key):
+    def __getitem__(self, key):
         # this method gets called when we use square brackets
         # example:
         # s = Settings()
