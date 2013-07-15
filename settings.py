@@ -1,3 +1,8 @@
+
+##
+## To be merged with share.py after writing & debugging
+##
+
 import os
 import sys
 
@@ -26,10 +31,39 @@ class Settings():
         else:
             # we might have proper settings file here,
             # let's parse it
-            self.parse_settings(settingsfile)
+            try:
+                self.parse_settings(settingsfile)
+            except IOError:
+                sys.stderr.write("ERR -- Settings file could not be READ -- "
+                                 + settingsfile + "\n")
 
-    def parse_settings(self, sf):        
-        print("lets parse some settings")
+    def parse_settings(self, sf):
+        f = open(sf, 'r')
+        lines = f.readlines()
+        f.close()
+        for l in lines:
+            l = l.strip()
+            if not l or l[0] == '#' or not '=' in l:
+                # filter empty lines and lines that start as a comment
+                continue
+            lin = l.split('#', 1)[0] # strip trailing comments
+            var = lin.split('=', 1)[0] # the variable name
+            val = lin.split('=', 1)[1] # the value for that name
+
+            # check variable and assign value
+            if 'HOME' == var:
+                self.HOME = val
+            elif 'DOWN' == var:
+                self.DOWN = val
+            elif 'CSS'  == var:
+                self.CSS = val
+            elif 'TITLE' == var:
+                self.TITLE = val
+            elif 'DIR' == var:
+                self.DIR = val
+            else:
+                sys.stderr.write("ERR -- line is not a valid SETTINGs line -- "
+                                 + l + "\n")
 
     def create_settings_file(self, sf="settings.txt"):
         print(self)
@@ -46,3 +80,4 @@ class Settings():
         s += "DIR="   + self.DIR   + "\n"
         return s
         
+pp = Settings()
