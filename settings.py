@@ -7,19 +7,20 @@ import os
 import sys
 
 class Settings():
-    # DEFAULT settings
-    HOME  = "home.pp"     # Home page
-    DOWN  = "download.pp" # download page template
-    CSS   = "style.css"   # CSS file
-    TITLE = "PShare, by Robbe VDG"             # html title
-    DIR   = os.path.join(os.getcwd(), "share") # Directory that is being shared
+    # DEFAULT configurations
+    settings = {
+        'HOME'  : "home.pp",     # Home page
+        'DOWN'  : "download.pp", # download page template
+        'CSS'   : "style.css",   # CSS file
+        'TITLE' : "PShare, by Robbe VDG",             # html title
+        'DIR'   : os.path.join(os.getcwd(), "share")} # shared dir
     
     def __init__(self, settingsfile="settings.txt"):
         if not os.path.exists(settingsfile):
             # create file in that location
             sys.stderr.write("LOG -- " + settingsfile + " -- does not exist\n")
             try:
-                self.create_settings_file()
+                self.create_settings_file(settingsfile)
                 sys.stderr.write("LOG -- Created settingsfile -- "
                                  + settingsfile + "\n")
             except IOError:
@@ -37,6 +38,24 @@ class Settings():
                 sys.stderr.write("ERR -- Settings file could not be READ -- "
                                  + settingsfile + "\n")
 
+    def __getitem__(key):
+        # this method gets called when we use square brackets
+        # example:
+        # s = Settings()
+        # print(s['HOME']) # will call this method with key='HOME'
+        # The reason for this is estetics. Otherwise I could be calling
+        # settins.Settings().settings somewhere. Not willing to write code
+        # that ugly.
+        return self.settings[key]
+
+    def __setitem__(self, key, value):
+        # mysettings[key] = value
+        if self.settings.has_key(key):
+            self.settings[key] = value
+        else:
+            sys.stderr.write("ERR -- Could not set setting -- "
+                             + key + ": " + value + "\n")
+
     def parse_settings(self, sf):
         f = open(sf, 'r')
         lines = f.readlines()
@@ -51,33 +70,20 @@ class Settings():
             val = lin.split('=', 1)[1] # the value for that name
 
             # check variable and assign value
-            if 'HOME' == var:
-                self.HOME = val
-            elif 'DOWN' == var:
-                self.DOWN = val
-            elif 'CSS'  == var:
-                self.CSS = val
-            elif 'TITLE' == var:
-                self.TITLE = val
-            elif 'DIR' == var:
-                self.DIR = val
-            else:
-                sys.stderr.write("ERR -- line is not a valid SETTINGs line -- "
-                                 + l + "\n")
+            self.settings[var] = val
+
 
     def create_settings_file(self, sf="settings.txt"):
-        print(self)
         f = open(sf, 'w')
         f.write(self.__str__())
         f.close()
 
     def __str__(self):
+        """This method gets called when a Settings object is asked to convert to
+        a string. It is also used to build the settings configurations file.
+        """
         s  = "# Settings PShare\n"
-        s += "HOME="  + self.HOME  + "\n"
-        s += "DOWN="  + self.DOWN  + "\n"
-        s += "CSS="   + self.CSS   + "\n"
-        s += "TITLE=" + self.TITLE + "\n"
-        s += "DIR="   + self.DIR   + "\n"
+        for key, value in self.settings.items():
+            s += key + "=" + value + "\n"      
         return s
         
-pp = Settings()
