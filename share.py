@@ -21,7 +21,6 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
     TITLE = "PSHARE home"
     DIR = "C:/Users/robbe/Desktop"
 
-    
     def list_directory(self, path):
         """Produce directory listing
         """
@@ -30,7 +29,7 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except os.error:
             self.send_error(404, "Permission denied")
             return None
-        
+
         f = StringIO.StringIO()
         f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
         f.write("<html>\n<title>%s</title>\n" % self.TITLE)
@@ -56,30 +55,29 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(length))
         self.end_headers()
         return f
-        
+
     def translate_path(self, dir):
         """Translate the url /path/ to the OS filesystem path.
         """
-       
+
         path = dir.split('?', 1)[0].split('#', 1)[0] # remove url params
         path = posixpath.normpath(urllib.unquote(path)) # unquote thingie
-        
+
         # make sure the favicon.ico is found in the right folder
         if dir == '/favicon.ico':
             urlpath = os.getcwd() + "\\favicon.ico" # make this crossplatform join
-            return urlpath            
-        
+            return urlpath
+
         path = posixpath.normpath(self.DIR) + path # see previous comment
         sys.stderr.write("REQUESTED -- " + path + "\n")
         return path
-        
-    
+
     def send_head(self):
         """Sends response code for GET & HEAD
-        
+
         Returns a file object or None
         """
-        
+
         path = self.translate_path(self.path)
         f = None
         if os.path.isdir(path):
@@ -93,7 +91,7 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         ctype = self.guess_type(path)
         try:
             # Always read in binary mode. Opening files in text mode may cause
-            # newline translations, making the actual size of the content 
+            # newline translations, making the actual size of the content
             # transmitted less thatn the content-length!
             f = open(path, 'rb')
         except IOError:
@@ -106,8 +104,7 @@ class PShare(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
         self.end_headers()
         return f
-    
-  
+
 
 # Server settings
 PORT = 80

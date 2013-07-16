@@ -19,6 +19,9 @@ Produce Web page
 """
 
 def construct_html_for_files(path, files, prefix=''):
+    """Constructs a list tree for alle the files and folders.
+    returns this in html
+    """
     html = "<ul class=\"list\">\n"
     for f in files:
         fp = os.path.join(path, f) # file path, absolute
